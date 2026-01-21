@@ -1,0 +1,196 @@
+# Climate-Informed Cholera Early Warning System Configuration
+
+# Project Settings
+project:
+  name: "Cholera Early Warning System"
+  region: "Zimbabwe and Southern Africa"
+  timezone: "Africa/Harare"
+
+# Data Paths
+paths:
+  data_root: "./data"
+  raw_data: "./data/raw"
+  processed_data: "./data/processed"
+  climate_data: "./data/climate"
+  epidemiological_data: "./data/epidemiological"
+  geospatial_data: "./data/geospatial"
+  models_dir: "./models/trained"
+  outputs_dir: "./outputs"
+
+# Geographic Coverage
+geography:
+  countries:
+    - Zimbabwe
+    - Mozambique
+    - Zambia
+    - Malawi
+    - South Africa
+  coordinates:
+    lat_min: -35.0
+    lat_max: -15.0
+    lon_min: 20.0
+    lon_max: 40.0
+
+# Climate Data Sources
+climate:
+  sources:
+    - name: "CHIRPS"
+      variable: "precipitation"
+      resolution: "0.05"
+      update_frequency: "daily"
+    - name: "ERA5"
+      variables: ["temperature", "humidity", "wind"]
+      resolution: "0.25"
+      update_frequency: "hourly"
+    - name: "NOAA"
+      variables: ["ENSO", "IOD"]
+      update_frequency: "monthly"
+
+  variables:
+    - precipitation
+    - temperature_max
+    - temperature_min
+    - humidity
+    - soil_moisture
+
+  time_range:
+    start_date: "2000-01-01"
+    end_date: "2024-12-31"
+
+# Epidemiological Data
+epidemiology:
+  data_sources:
+    - name: "National Surveillance"
+      update_frequency: "weekly"
+    - name: "WHO AFRO"
+      update_frequency: "weekly"
+
+  metrics:
+    - case_counts
+    - deaths
+    - attack_rate
+    - case_fatality_rate
+
+  lag_periods: [1, 2, 4, 8, 12]  # weeks
+
+# Model Configuration
+modeling:
+  algorithms:
+    - "Random Forest"
+    - "XGBoost"
+    - "LSTM"
+    - "Prophet"
+
+  features:
+    climate:
+      - rainfall_cumulative
+      - temperature_mean
+      - temperature_anomaly
+      - humidity
+      - drought_index
+
+    epidemiological:
+      - cases_lagged
+      - outbreak_history
+
+    geospatial:
+      - population_density
+      - water_access
+      - sanitation_coverage
+      - proximity_to_water
+
+  training:
+    test_size: 0.2
+    validation_size: 0.2
+    cross_validation_folds: 5
+    random_state: 42
+
+  hyperparameters:
+    random_forest:
+      n_estimators: [100, 200, 500]
+      max_depth: [10, 20, 30]
+      min_samples_split: [2, 5, 10]
+
+    xgboost:
+      learning_rate: [0.01, 0.1, 0.3]
+      max_depth: [3, 6, 9]
+      n_estimators: [100, 200, 500]
+
+# Early Warning Thresholds
+alerts:
+  risk_levels:
+    low:
+      threshold: 0.3
+      color: "green"
+      action: "Enhanced surveillance"
+
+    moderate:
+      threshold: 0.5
+      color: "yellow"
+      action: "Activate preparedness measures"
+
+    high:
+      threshold: 0.7
+      color: "orange"
+      action: "Deploy rapid response teams"
+
+    very_high:
+      threshold: 0.85
+      color: "red"
+      action: "Emergency response activation"
+
+  forecast_horizon: 4  # weeks ahead
+  update_frequency: "weekly"
+
+# Visualization
+visualization:
+  dashboard:
+    port: 8050
+    host: "0.0.0.0"
+    debug: false
+
+  map_settings:
+    base_map: "OpenStreetMap"
+    default_zoom: 6
+    center_lat: -19.0
+    center_lon: 29.15
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  version: "v1"
+  cors_origins:
+    - "http://localhost:3000"
+
+# Database
+database:
+  type: "postgresql"
+  host: "localhost"
+  port: 5432
+  name: "cholera_ews"
+  user: "your_username"
+  password: "your_password"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "json"
+  file: "./logs/cholera_ews.log"
+  rotation: "daily"
+
+# Notifications
+notifications:
+  email:
+    enabled: true
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    sender: "alerts@choleraews.org"
+    recipients:
+      - "health.ministry@gov.zw"
+      - "who.afro@who.int"
+
+  sms:
+    enabled: false
+    provider: "twilio"
+    api_key: "your_api_key"
