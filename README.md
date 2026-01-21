@@ -37,6 +37,21 @@ The system follows a standard data science pipeline for climate-health modelling
 3. **Model Training and Prediction**: Machine learning models are trained and generate predictions
 4. **Rigorous Evaluation**: Models undergo comprehensive evaluation to ensure reliability
 
+### CHAP Platform Integration
+
+This system is built on **CHAP (Climate and Health Analysis Platform)**, a Python-based framework developed by DHIS2 for climate-health modeling. CHAP provides:
+
+- **Standardized Data Pipelines**: Automated harmonization of climate and health data per region/time
+- **Model Orchestration**: Framework for training, tuning, and deploying predictive models
+- **Rigorous Evaluation**: Comprehensive model validation and performance assessment
+- **Hyperparameter Tuning**: Automated optimization of model parameters
+- **DHIS2 Integration**: Native connection to DHIS2 health information systems
+- **MLflow Integration**: Experiment tracking and model versioning
+
+CHAP enables this cholera early warning system to leverage proven climate-health modeling patterns while maintaining compatibility with national health data systems like DHIS2.
+
+**Learn more**: [CHAP Documentation](https://dhis2-chap.github.io/chap-core/) | [CHAP on GitHub](https://github.com/dhis2-chap/chap-core)
+
 ### Project Structure
 ```
 CholeraEarlyWarningSystem/
@@ -80,13 +95,15 @@ CholeraEarlyWarningSystem/
 - Efficient allocation of scarce public health and WASH resources
 
 ### Key Features
+- **CHAP Integration**: Built on the Climate and Health Analysis Platform (CHAP) for standardized climate-health modeling
 - Real-time climate data integration (rainfall, temperature, ENSO indices)
 - Epidemiological surveillance data processing
-- Predictive modeling using machine learning
+- Predictive modeling using machine learning with CHAP's model orchestration
 - Geographic risk mapping
 - Early warning alerts
 - Decision-support dashboards
 - API for external integrations
+- DHIS2 compatibility through CHAP framework
 
 ### Data Sources
 
@@ -120,16 +137,43 @@ The modelling tool leverages existing datasets already used in Zimbabwe and the 
 - OpenStreetMap infrastructure data
 
 ### Installation
+
+#### Prerequisites
+- Python 3.8 or higher (Python 3.11 recommended for CHAP)
+- pip package manager
+- Git
+
+#### Installation Steps
+
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Robert-Selemani/Cholera-Early-Warning-System.git
 cd CholeraEarlyWarningSystem
 
-# Create virtual environment
-python -m venv venv
+# Create virtual environment (Python 3.11 recommended)
+python3.11 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
+# Upgrade pip
+pip install --upgrade pip
+
+# Install dependencies (includes CHAP platform)
+pip install -r requirements.txt
+
+# Verify CHAP installation
+chap --help
+```
+
+#### Alternative: Using Conda (Recommended for CHAP)
+
+```bash
+# Create conda environment with Python 3.11
+conda create -n cholera-ews python=3.11
+conda activate cholera-ews
+
+# Clone and install
+git clone https://github.com/Robert-Selemani/Cholera-Early-Warning-System.git
+cd CholeraEarlyWarningSystem
 pip install -r requirements.txt
 ```
 

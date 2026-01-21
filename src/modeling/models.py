@@ -1,5 +1,8 @@
 """
 Machine learning models for cholera risk prediction
+
+This module integrates with CHAP (Climate and Health Analysis Platform)
+for climate-health modeling and disease prediction.
 """
 
 import numpy as np
@@ -10,6 +13,14 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import xgboost as xgb
 from typing import Dict, Tuple, Optional
 import joblib
+
+# CHAP integration
+try:
+    import chap_core
+    CHAP_AVAILABLE = True
+except ImportError:
+    CHAP_AVAILABLE = False
+    print("Warning: chap-core not installed. CHAP-based models will not be available.")
 
 
 class CholeraRiskModel:
@@ -148,3 +159,88 @@ class XGBoostModel(CholeraRiskModel):
 
         self.model.fit(X_train, y_train)
         self.feature_importance = self.model.feature_importances_
+
+
+class CHAPModel(CholeraRiskModel):
+    """
+    CHAP (Climate and Health Analysis Platform) integrated model
+
+    This model uses the CHAP framework for climate-health modeling,
+    providing standardized data pipelines, model orchestration,
+    validation, and integration with DHIS2 health data systems.
+    """
+
+    def __init__(self, config: Dict):
+        """
+        Initialize CHAP model
+
+        Args:
+            config: Model configuration dictionary
+
+        Raises:
+            ImportError: If chap-core is not installed
+        """
+        if not CHAP_AVAILABLE:
+            raise ImportError(
+                "chap-core is not installed. "
+                "Install it with: pip install chap-core"
+            )
+
+        super().__init__(config)
+        self.chap_config = config.get('chap', {})
+
+    def train(self, X_train: np.ndarray, y_train: np.ndarray):
+        """
+        Train model using CHAP framework
+
+        Args:
+            X_train: Training features
+            y_train: Training target
+        """
+        # TODO: Implement CHAP-specific training pipeline
+        # This will use CHAP's model orchestration, hyperparameter tuning,
+        # and validation capabilities
+
+        # Placeholder implementation
+        print("Training CHAP model...")
+        print(f"Training data shape: {X_train.shape}")
+        print(f"CHAP configuration: {self.chap_config}")
+
+        # The actual CHAP integration will involve:
+        # 1. Data harmonization using CHAP's data pipelines
+        # 2. Model training with CHAP's orchestration
+        # 3. Hyperparameter tuning using CHAP's optimization
+        # 4. Rigorous evaluation using CHAP's metrics
+
+        raise NotImplementedError(
+            "CHAP model training integration is in progress. "
+            "Refer to CHAP documentation at: "
+            "https://dhis2-chap.github.io/chap-core/"
+        )
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Make predictions using CHAP model
+
+        Args:
+            X: Feature array
+
+        Returns:
+            Predictions
+        """
+        # TODO: Implement CHAP prediction pipeline
+        raise NotImplementedError("CHAP prediction implementation in progress")
+
+    def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> Dict:
+        """
+        Evaluate model using CHAP's rigorous evaluation framework
+
+        Args:
+            X_test: Test features
+            y_test: Test target
+
+        Returns:
+            Dictionary of CHAP evaluation metrics
+        """
+        # TODO: Implement CHAP evaluation pipeline
+        raise NotImplementedError("CHAP evaluation implementation in progress")

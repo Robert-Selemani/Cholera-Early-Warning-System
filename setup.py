@@ -18,7 +18,7 @@ setup(
     description="Climate-Informed Cholera Early Warning and Decision-Support Tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/CholeraEarlyWarningSystem",
+    url="https://github.com/Robert-Selemani/Cholera-Early-Warning-System",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
