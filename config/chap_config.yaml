@@ -1,0 +1,93 @@
+# CHAP Configuration for Cholera Early Warning System
+# Zimbabwe and Southern Africa
+
+# Model Configuration
+model_type: random_forest  # Options: random_forest, gradient_boosting
+
+# Random Forest Parameters
+n_estimators: 200
+max_depth: 15
+min_samples_split: 5
+random_state: 42
+
+# Gradient Boosting Parameters (if model_type is gradient_boosting)
+learning_rate: 0.1
+
+# Feature Engineering
+lag_periods:
+  - 1  # 1 month lag
+  - 2  # 2 months lag
+  - 4  # 4 months lag (seasonal)
+  - 8  # 8 months lag
+
+# Climate Features
+climate_features:
+  - rainfall
+  - temperature_mean
+  - temperature_max
+  - temperature_min
+  - humidity
+
+# Target Variable
+target_variable: cholera_cases
+
+# Prediction Configuration
+prediction_samples: 100  # Number of probabilistic samples for uncertainty quantification
+forecast_horizon: 12  # Months to forecast ahead
+
+# Data Configuration
+time_column: time_period
+district_column: district
+
+# Geographic Configuration
+focus_regions:
+  - Harare  # High-density suburbs: Budiriro, Glen View, Kuwadzana
+  - Manicaland
+  - Mashonaland East
+  - Mashonaland West
+  - Matabeleland North
+  - Matabeleland South
+  - Masvingo
+  - Midlands
+
+# Seasonality
+high_risk_months:
+  - 11  # November (start of rainy season)
+  - 12  # December
+  - 1   # January
+  - 2   # February
+  - 3   # March (end of rainy season)
+
+# Outbreak Thresholds
+outbreak_thresholds:
+  low_risk: 0
+  moderate_risk: 10
+  high_risk: 50
+  very_high_risk: 100
+
+# Evaluation Settings
+evaluation:
+  test_split: 0.2  # 20% of data for testing
+  cross_validation_folds: 5
+  metrics:
+    - mae
+    - rmse
+    - r2
+    - correlation
+    - precision
+    - recall
+    - f1_score
+
+# DHIS2 Integration (optional)
+dhis2:
+  enabled: false
+  # server_url: https://your-dhis2-instance.org
+  # api_version: 39
+  # credentials_file: .env
+
+# CHAP Platform Settings
+chap:
+  backend_url: null  # Set if using CHAP backend server
+  use_mlflow: true
+  mlflow_tracking_uri: ./mlruns
+  experiment_name: cholera_early_warning_zimbabwe

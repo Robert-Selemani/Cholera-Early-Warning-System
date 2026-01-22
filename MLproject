@@ -1,0 +1,47 @@
+name: cholera-early-warning-system
+
+python_env: python_env.yaml
+
+entry_points:
+  train:
+    parameters:
+      train_data:
+        type: path
+        description: Path to training data CSV file with climate and disease data
+      model:
+        type: str
+        description: Path to save the trained model file
+      config:
+        type: path
+        default: config/chap_config.yaml
+        description: Path to CHAP configuration file
+    command: "python src/chap_integration/chap_train.py {train_data} {model} --config {config}"
+
+  predict:
+    parameters:
+      historic_data:
+        type: path
+        description: Path to historical data CSV file
+      future_data:
+        type: path
+        description: Path to future climate data CSV file
+      model:
+        type: str
+        description: Path to the trained model file
+      out_file:
+        type: path
+        description: Path to save predictions CSV file
+    command: "python src/chap_integration/chap_predict.py {model} {historic_data} {future_data} {out_file}"
+
+  evaluate:
+    parameters:
+      test_data:
+        type: path
+        description: Path to test data CSV file
+      model:
+        type: str
+        description: Path to the trained model file
+      metrics_file:
+        type: path
+        description: Path to save evaluation metrics
+    command: "python src/chap_integration/chap_evaluate.py {model} {test_data} {metrics_file}"

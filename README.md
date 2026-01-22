@@ -178,6 +178,8 @@ pip install -r requirements.txt
 ```
 
 ### Quick Start
+
+#### Traditional Workflow
 ```bash
 # Configure the system
 cp config/config.example.yaml config/config.yaml
@@ -191,6 +193,103 @@ python src/modeling/train.py
 
 # Launch dashboard
 python src/visualization/dashboard.py
+```
+
+#### CHAP Workflow (Recommended)
+
+The system is integrated with CHAP (Climate and Health Analysis Platform) for standardized climate-health modeling.
+
+**Complete Example Workflow:**
+```bash
+# Run the complete CHAP workflow example
+python examples/chap_workflow_example.py
+```
+
+**Manual CHAP Workflow:**
+
+**1. Data Harmonization:**
+```bash
+# Harmonize climate and health data
+python src/chap_integration/data_harmonization.py \
+  data/raw/health_data.csv \
+  data/raw/climate_data.csv \
+  data/processed/harmonized_data.csv
+```
+
+**2. Model Training:**
+```bash
+# Train CHAP-compatible model
+python src/chap_integration/chap_train.py \
+  data/processed/harmonized_data.csv \
+  models/trained/cholera_model.pkl \
+  --config config/chap_config.yaml
+```
+
+**3. Generate Predictions:**
+```bash
+# Generate probabilistic forecasts
+python src/chap_integration/chap_predict.py \
+  models/trained/cholera_model.pkl \
+  data/processed/historical_data.csv \
+  data/processed/future_climate.csv \
+  outputs/forecasts/predictions.csv
+```
+
+**4. Model Evaluation:**
+```bash
+# Evaluate model performance
+python src/chap_integration/chap_evaluate.py \
+  models/trained/cholera_model.pkl \
+  data/processed/test_data.csv \
+  models/evaluation/metrics.json
+```
+
+**Using CHAP CLI:**
+```bash
+# Initialize a CHAP project
+chap init my_cholera_project
+
+# Evaluate model with CHAP
+chap evaluate2 \
+  --train-data data/processed/harmonized_data.csv \
+  --model-name cholera_forecaster \
+  --output-dir outputs/
+
+# Generate forecast
+chap forecast \
+  --model models/trained/cholera_model.pkl \
+  --future-data data/processed/future_climate.csv \
+  --n-months 12
+
+# Start CHAP backend server
+chap serve --port 8000
+```
+
+### CHAP Configuration
+
+The `config/chap_config.yaml` file controls model behavior:
+
+```yaml
+# Model settings
+model_type: random_forest  # or gradient_boosting
+n_estimators: 200
+max_depth: 15
+
+# Feature engineering
+lag_periods: [1, 2, 4, 8]  # Monthly lags
+
+# Prediction settings
+prediction_samples: 100  # Probabilistic samples
+forecast_horizon: 12  # Months ahead
+
+# Zimbabwe-specific settings
+focus_regions:
+  - Harare  # High-density suburbs
+  - Manicaland
+  - Mashonaland East
+  # ... other districts
+
+high_risk_months: [11, 12, 1, 2, 3]  # Rainy season
 ```
 
 ### Decision-Support Framework

@@ -1,0 +1,18 @@
+# Python environment specification for CHAP integration
+# This file defines the conda environment for running CHAP models
+
+python: "3.11"
+build_dependencies:
+  - pip
+dependencies:
+  - numpy>=2.1.3
+  - pandas>=2.1.4
+  - scikit-learn>=1.7.2
+  - xgboost>=2.0.0
+  - geopandas>=1.1.1
+  - matplotlib>=3.10.6
+  - plotly>=6.5.2
+  - joblib>=1.3.0
+  - pyyaml>=6.0
+  - pip:
+    - chap-core>=1.0.17
