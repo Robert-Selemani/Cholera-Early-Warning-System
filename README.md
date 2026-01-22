@@ -331,6 +331,25 @@ The GUI provides:
 
 See `docs/GUI_GUIDE.md` for detailed interface documentation.
 
+### Deployment
+
+Deploy to **Streamlit Cloud** (recommended for free hosting):
+
+1. **Sign up**: https://share.streamlit.io/
+2. **Connect GitHub**: Authorize access to your repository
+3. **Deploy**:
+   - Repository: `Robert-Selemani/Cholera-Early-Warning-System`
+   - Branch: `master`
+   - Main file: `app.py`
+4. **Access**: Your app at `https://[app-name].streamlit.app`
+
+**Deployment files included:**
+- `packages.txt` - System dependencies
+- `.streamlit/config.toml` - App configuration
+- `.streamlit/secrets.toml.example` - Secrets template
+
+See `docs/DEPLOYMENT.md` for comprehensive deployment guide.
+
 ### Usage
 See detailed documentation in the `docs/` folder.
 

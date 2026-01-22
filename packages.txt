@@ -1,0 +1,10 @@
+# System packages required for the application
+# These will be installed via apt-get on Streamlit Cloud
+
+# For geospatial operations
+libgdal-dev
+libgeos-dev
+libproj-dev
+
+# For scientific computing
+build-essential

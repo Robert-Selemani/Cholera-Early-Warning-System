@@ -66,6 +66,7 @@ config/config.yaml
 .env
 *.secret
 credentials.json
+.streamlit/secrets.toml
 
 # Testing
 .coverage
