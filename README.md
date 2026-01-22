@@ -310,6 +310,27 @@ At the Southern Africa level, it supports:
 - Regional climate-health early warning initiatives
 - Evidence-based alignment of public health, disaster risk reduction, and climate adaptation policies
 
+### Web Interface (GUI)
+
+Launch the interactive web dashboard:
+
+```bash
+streamlit run app.py
+```
+
+The GUI provides:
+- **📊 Dashboard**: System overview and risk alerts
+- **📥 Data Management**: Upload and harmonize data
+- **🧮 Model Training**: Train CHAP models with custom parameters
+- **🔮 Predictions**: Generate probabilistic forecasts
+- **📈 Visualizations**: Interactive charts and analytics
+- **📋 Evaluation**: Model performance metrics
+- **⚙️ Settings**: System configuration
+
+**Color Scheme**: Inspired by [CSIDNET](https://csidnet.org/) with teal (#4C7C83), aqua (#46CBDE), and earth tones
+
+See `docs/GUI_GUIDE.md` for detailed interface documentation.
+
 ### Usage
 See detailed documentation in the `docs/` folder.
 
