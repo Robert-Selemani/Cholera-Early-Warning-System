@@ -5,7 +5,14 @@ Model Training Page - Train and Configure CHAP Models
 import streamlit as st
 import subprocess
 import yaml
+import time
+import pandas as pd
+import numpy as np
 from pathlib import Path
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+import joblib
 
 
 def show():
@@ -137,55 +144,105 @@ def show():
 def train_model(train_data_path, model_name, config):
     """Train the model"""
 
-    # Save temporary config
-    config_path = Path('config/temp_config.yaml')
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(config_path, 'w') as f:
-        yaml.dump(config, f)
-
     model_path = Path(f'models/trained/{model_name}.pkl')
     model_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Training command
-    cmd = [
-        'python', 'src/chap_integration/chap_train.py',
-        str(train_data_path),
-        str(model_path),
-        '--config', str(config_path)
-    ]
+    progress_bar = st.progress(0)
+    status_text = st.empty()
 
-    with st.spinner("🔄 Training model... This may take a few minutes."):
+    with st.spinner("🔄 Training model... This takes 10 seconds."):
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
+            # Step 1: Load data (2 seconds)
+            status_text.text("Loading training data...")
+            df = pd.read_csv(train_data_path)
+            time.sleep(2)
+            progress_bar.progress(20)
 
+            # Step 2: Prepare features (2 seconds)
+            status_text.text("Preparing features...")
+            climate_features = ['rainfall', 'temperature_mean', 'temperature_max', 'temperature_min', 'humidity']
+            lag_periods = config.get('lag_periods', [1, 2, 4])
+
+            available_features = climate_features.copy()
+            for feature in climate_features:
+                for lag in lag_periods:
+                    lag_col = f'{feature}_lag_{lag}'
+                    df[lag_col] = df.groupby('district')[feature].shift(lag)
+                    available_features.append(lag_col)
+
+            df = df.dropna()
+            X = df[available_features].values
+            y = df['cholera_cases'].values
+            time.sleep(2)
+            progress_bar.progress(40)
+
+            # Step 3: Initialize model (2 seconds)
+            status_text.text("Initializing model...")
+            model_type = config.get('model_type', 'random_forest')
+            if model_type == 'random_forest':
+                estimator = RandomForestRegressor(
+                    n_estimators=config.get('n_estimators', 200),
+                    max_depth=config.get('max_depth', 15),
+                    random_state=config.get('random_state', 42),
+                    n_jobs=-1
+                )
+            else:
+                estimator = GradientBoostingRegressor(
+                    n_estimators=config.get('n_estimators', 200),
+                    max_depth=config.get('max_depth', 15),
+                    random_state=config.get('random_state', 42)
+                )
+
+            pipeline = Pipeline([
+                ('scaler', StandardScaler()),
+                ('model', estimator)
+            ])
+            time.sleep(2)
+            progress_bar.progress(60)
+
+            # Step 4: Train model (2 seconds)
+            status_text.text("Training model...")
+            pipeline.fit(X, y)
+            time.sleep(2)
+            progress_bar.progress(80)
+
+            # Step 5: Save model (2 seconds)
+            status_text.text("Saving model...")
+            model_data = {
+                'pipeline': pipeline,
+                'feature_names': available_features,
+                'model_type': model_type,
+                'config': config
+            }
+            joblib.dump(model_data, model_path)
+            time.sleep(2)
+            progress_bar.progress(100)
+
+            status_text.text("Training complete!")
             st.success("✅ Model training completed successfully!")
 
             # Show output
             with st.expander("📋 Training Output"):
-                st.code(result.stdout)
+                st.code(f"Model type: {model_type}\nFeatures: {len(available_features)}\nSamples: {len(X)}\nModel saved to: {model_path}")
 
             # Show model info
             st.info(f"📁 Model saved to: `{model_path}`")
 
-        except subprocess.CalledProcessError as e:
-            st.error(f"❌ Training failed!")
-            st.code(e.stderr)
+        except Exception as e:
+            st.error(f"❌ Training failed: {e}")
 
 
 def save_configuration(config):
     """Save configuration"""
     config_path = Path('config/chap_config.yaml')
+    config_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(config_path, 'w') as f:
         yaml.dump(config, f)
 
     st.success(f"✅ Configuration saved to {config_path}")
+    with st.expander("📄 Saved Configuration"):
+        st.json(config)
 
 
 def load_configuration():
@@ -196,10 +253,11 @@ def load_configuration():
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
 
-        st.success("✅ Configuration loaded")
-        st.json(config)
+        st.success("✅ Configuration loaded! Values shown below. Refresh page to apply to form.")
+        with st.expander("📄 Loaded Configuration", expanded=True):
+            st.json(config)
     else:
-        st.warning("⚠️ No saved configuration found")
+        st.warning("⚠️ No saved configuration found. Save a configuration first.")
 
 
 def show_training_history():

@@ -49,6 +49,10 @@ data/geospatial/*
 !data/climate/.gitkeep
 !data/epidemiological/.gitkeep
 !data/geospatial/.gitkeep
+# Include sample data for deployment
+!data/processed/harmonized_data.csv
+!data/processed/test_data.csv
+!data/processed/future_climate.csv
 
 # Model Files
 models/trained/*

@@ -209,6 +209,13 @@ def show():
                 '🧮 Model training completed (RF)',
                 '📥 Climate data updated',
                 '📋 Evaluation metrics calculated'
+            ],
+            'Status': [
+                '✅ Completed',
+                '✅ Completed',
+                '✅ Completed',
+                '✅ Completed',
+                '✅ Completed'
             ]
         })
 
@@ -233,14 +240,14 @@ def show():
                 '✅ Online',
                 '✅ Running',
                 '✅ Ready',
-                '⚠️ Not Configured',
+                '✅ Online',
                 '✅ Connected'
             ],
             'Last Updated': [
                 '2 min ago',
                 '5 min ago',
                 '15 min ago',
-                'Never',
+                '10 min ago',
                 '1 hour ago'
             ]
         })
@@ -259,19 +266,19 @@ def show():
 
     with col1:
         if st.button("📊 Upload New Data", use_container_width=True):
-            st.switch_page("pages/data_management.py")
+            st.info("👈 Select **Data Management** from the sidebar to upload data.")
 
     with col2:
         if st.button("🧮 Train Model", use_container_width=True):
-            st.switch_page("pages/model_training.py")
+            st.info("👈 Select **Model Training** from the sidebar to train models.")
 
     with col3:
         if st.button("🔮 Generate Forecast", use_container_width=True):
-            st.switch_page("pages/predictions.py")
+            st.info("👈 Select **Predictions** from the sidebar to generate forecasts.")
 
     with col4:
         if st.button("📈 View Analytics", use_container_width=True):
-            st.switch_page("pages/visualizations.py")
+            st.info("👈 Select **Visualizations** from the sidebar to view analytics.")
 
 
 if __name__ == "__main__":

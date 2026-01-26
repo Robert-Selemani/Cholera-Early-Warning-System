@@ -23,12 +23,12 @@ from sklearn.metrics import (
 )
 
 
-def prepare_test_features(df, feature_names, config):
+def prepare_test_features(test_df, feature_names, config):
     """
     Prepare features for evaluation
 
     Args:
-        df: DataFrame with test data
+        test_df: DataFrame with test data
         feature_names: List of feature names from training
         config: Configuration dictionary
 
@@ -36,6 +36,17 @@ def prepare_test_features(df, feature_names, config):
         X: Feature matrix
         y: True target values
     """
+    # Load training data as history for lag features
+    train_data_path = Path('data/processed/harmonized_data.csv')
+    if train_data_path.exists():
+        train_df = pd.read_csv(train_data_path)
+        # Combine training and test data for lag calculation
+        df = pd.concat([train_df, test_df], ignore_index=True)
+        test_start_idx = len(train_df)
+    else:
+        df = test_df.copy()
+        test_start_idx = 0
+
     # Extract lag configuration
     lag_periods = config.get('lag_periods', [1, 2, 4])
 
@@ -57,6 +68,11 @@ def prepare_test_features(df, feature_names, config):
             for lag in lag_periods:
                 lag_col = f'{feature}_lag_{lag}'
                 df[lag_col] = df.groupby('district')[feature].shift(lag)
+
+    # Filter to only test data rows (after lag calculation)
+    # Re-identify test rows by time_period
+    test_periods = test_df['time_period'].unique()
+    df = df[df['time_period'].isin(test_periods)]
 
     # Drop rows with NaN
     df = df.dropna()
