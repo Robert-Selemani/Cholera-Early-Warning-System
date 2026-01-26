@@ -4,9 +4,12 @@ Evaluation Page - Model Performance Metrics
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 import json
-import subprocess
+import time
+import joblib
 from pathlib import Path
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 def show():
@@ -63,27 +66,103 @@ def run_evaluation(model_path, test_data_path):
     metrics_path = Path('models/evaluation/evaluation_metrics.json')
     metrics_path.parent.mkdir(parents=True, exist_ok=True)
 
-    cmd = [
-        'python', 'src/chap_integration/chap_evaluate.py',
-        str(model_path),
-        test_data_path,
-        str(metrics_path)
-    ]
+    progress_bar = st.progress(0)
+    status_text = st.empty()
 
-    with st.spinner("🔄 Evaluating model..."):
+    with st.spinner("🔄 Evaluating model... This takes 10 seconds."):
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            # Step 1: Load model (2 seconds)
+            status_text.text("Loading model...")
+            model_data = joblib.load(model_path)
+            pipeline = model_data['pipeline']
+            feature_names = model_data['feature_names']
+            config = model_data.get('config', {})
+            time.sleep(2)
+            progress_bar.progress(20)
 
+            # Step 2: Load data (2 seconds)
+            status_text.text("Loading test data...")
+            test_df = pd.read_csv(test_data_path)
+            train_df = pd.read_csv('data/processed/harmonized_data.csv')
+            time.sleep(2)
+            progress_bar.progress(40)
+
+            # Step 3: Prepare features (2 seconds)
+            status_text.text("Preparing features...")
+            df = pd.concat([train_df, test_df], ignore_index=True)
+            df = df.sort_values(['district', 'time_period'])
+
+            lag_periods = config.get('lag_periods', [1, 2, 4])
+            base_features = ['rainfall', 'temperature_mean', 'temperature_max', 'temperature_min', 'humidity']
+
+            for feature in base_features:
+                if feature in df.columns:
+                    for lag in lag_periods:
+                        lag_col = f'{feature}_lag_{lag}'
+                        df[lag_col] = df.groupby('district')[feature].shift(lag)
+
+            test_periods = test_df['time_period'].unique()
+            df = df[df['time_period'].isin(test_periods)]
+            df = df.dropna()
+
+            X_test = df[[f for f in feature_names if f in df.columns]].values
+            y_test = df['cholera_cases'].fillna(0).values
+            time.sleep(2)
+            progress_bar.progress(60)
+
+            # Step 4: Generate predictions (2 seconds)
+            status_text.text("Generating predictions...")
+            y_pred = pipeline.predict(X_test)
+            time.sleep(2)
+            progress_bar.progress(80)
+
+            # Step 5: Calculate metrics (2 seconds)
+            status_text.text("Calculating metrics...")
+            metrics = {}
+            metrics['mae'] = float(mean_absolute_error(y_test, y_pred))
+            metrics['rmse'] = float(np.sqrt(mean_squared_error(y_test, y_pred)))
+            metrics['r2'] = float(r2_score(y_test, y_pred))
+            metrics['correlation'] = float(np.corrcoef(y_test, y_pred)[0, 1]) if len(y_test) > 1 else 0.0
+            metrics['bias'] = float(np.mean(y_pred - y_test))
+
+            # Detection metrics
+            y_true_binary = (y_test > 0).astype(int)
+            y_pred_binary = (y_pred > 0).astype(int)
+            tp = np.sum((y_true_binary == 1) & (y_pred_binary == 1))
+            fp = np.sum((y_true_binary == 0) & (y_pred_binary == 1))
+            tn = np.sum((y_true_binary == 0) & (y_pred_binary == 0))
+            fn = np.sum((y_true_binary == 1) & (y_pred_binary == 0))
+
+            metrics['accuracy'] = float((tp + tn) / len(y_test)) if len(y_test) > 0 else 0
+            metrics['precision'] = float(tp / (tp + fp)) if (tp + fp) > 0 else 0
+            metrics['recall'] = float(tp / (tp + fn)) if (tp + fn) > 0 else 0
+            metrics['f1_score'] = float(2 * metrics['precision'] * metrics['recall'] / (metrics['precision'] + metrics['recall'])) if (metrics['precision'] + metrics['recall']) > 0 else 0
+            metrics['specificity'] = float(tn / (tn + fp)) if (tn + fp) > 0 else 0
+
+            # Save results
+            evaluation_results = {
+                'model_type': model_data.get('model_type', 'unknown'),
+                'n_test_samples': int(len(y_test)),
+                'n_features': int(len(feature_names)),
+                'metrics': metrics
+            }
+
+            with open(metrics_path, 'w') as f:
+                json.dump(evaluation_results, f, indent=2)
+
+            time.sleep(2)
+            progress_bar.progress(100)
+
+            status_text.text("Evaluation complete!")
             st.success("✅ Evaluation completed!")
 
             with st.expander("📋 Evaluation Output"):
-                st.code(result.stdout)
+                st.code(f"Test Samples: {len(y_test)}\nMAE: {metrics['mae']:.4f}\nRMSE: {metrics['rmse']:.4f}\nR²: {metrics['r2']:.4f}")
 
             st.rerun()
 
-        except subprocess.CalledProcessError as e:
-            st.error("❌ Evaluation failed!")
-            st.code(e.stderr)
+        except Exception as e:
+            st.error(f"❌ Evaluation failed: {e}")
 
 
 def show_evaluation_results():

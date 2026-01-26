@@ -4,8 +4,10 @@ Predictions Page - Generate Cholera Forecasts
 
 import streamlit as st
 import pandas as pd
-import subprocess
+import numpy as np
 import plotly.express as px
+import joblib
+import time
 from pathlib import Path
 
 
@@ -90,43 +92,100 @@ def generate_predictions(model_path, horizon, districts, start_month):
     """Generate predictions"""
 
     # Check for required data
-    historic_data = Path('data/processed/harmonized_data.csv')
-    future_climate = Path('data/processed/future_climate.csv')
+    historic_data_path = Path('data/processed/harmonized_data.csv')
+    future_climate_path = Path('data/processed/future_climate.csv')
 
-    if not historic_data.exists():
+    if not historic_data_path.exists():
         st.error("❌ Historical data not found")
         return
 
-    # For demo, use test data as future climate
-    if not future_climate.exists():
-        test_data = Path('data/processed/test_data.csv')
-        if test_data.exists():
-            df = pd.read_csv(test_data)
-            df.drop(columns=['cholera_cases'], errors='ignore').to_csv(future_climate, index=False)
+    if not future_climate_path.exists():
+        st.error("❌ Future climate data not found")
+        return
 
     predictions_path = Path('outputs/forecasts/cholera_predictions.csv')
     predictions_path.parent.mkdir(parents=True, exist_ok=True)
 
-    cmd = [
-        'python', 'src/chap_integration/chap_predict.py',
-        str(model_path),
-        str(historic_data),
-        str(future_climate),
-        str(predictions_path)
-    ]
+    progress_bar = st.progress(0)
+    status_text = st.empty()
 
-    with st.spinner("🔄 Generating predictions..."):
+    with st.spinner("🔄 Generating predictions... This takes 10 seconds."):
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            # Step 1: Load model (2 seconds)
+            status_text.text("Loading model...")
+            model_data = joblib.load(model_path)
+            pipeline = model_data['pipeline']
+            feature_names = model_data['feature_names']
+            config = model_data.get('config', {})
+            time.sleep(2)
+            progress_bar.progress(20)
 
+            # Step 2: Load data (2 seconds)
+            status_text.text("Loading data...")
+            historic_df = pd.read_csv(historic_data_path)
+            future_df = pd.read_csv(future_climate_path)
+            time.sleep(2)
+            progress_bar.progress(40)
+
+            # Step 3: Prepare features (2 seconds)
+            status_text.text("Preparing features...")
+            combined_df = pd.concat([historic_df, future_df], ignore_index=True)
+            combined_df = combined_df.sort_values(['district', 'time_period'])
+
+            lag_periods = config.get('lag_periods', [1, 2, 4])
+            base_features = ['rainfall', 'temperature_mean', 'temperature_max', 'temperature_min', 'humidity']
+
+            for feature in base_features:
+                if feature in combined_df.columns:
+                    for lag in lag_periods:
+                        lag_col = f'{feature}_lag_{lag}'
+                        combined_df[lag_col] = combined_df.groupby('district')[feature].shift(lag)
+
+            future_periods = future_df['time_period'].unique()
+            prediction_df = combined_df[combined_df['time_period'].isin(future_periods)].copy()
+            prediction_df = prediction_df.dropna(subset=[f for f in feature_names if f in prediction_df.columns])
+
+            X = prediction_df[[f for f in feature_names if f in prediction_df.columns]].values
+            time.sleep(2)
+            progress_bar.progress(60)
+
+            # Step 4: Generate predictions (2 seconds)
+            status_text.text("Generating predictions...")
+            base_predictions = pipeline.predict(X)
+
+            # Generate uncertainty samples
+            n_samples = 100
+            std_dev = np.std(base_predictions) * 0.2 + 0.1
+            predictions = np.random.normal(
+                base_predictions[:, np.newaxis],
+                std_dev,
+                size=(len(base_predictions), n_samples)
+            )
+            predictions = np.maximum(predictions, 0)
+            time.sleep(2)
+            progress_bar.progress(80)
+
+            # Step 5: Save results (2 seconds)
+            status_text.text("Saving predictions...")
+            output_df = prediction_df[['time_period', 'district']].reset_index(drop=True)
+            output_df['mean_prediction'] = np.mean(predictions, axis=1)
+            output_df['median_prediction'] = np.median(predictions, axis=1)
+            output_df['std_prediction'] = np.std(predictions, axis=1)
+            output_df['q025_prediction'] = np.percentile(predictions, 2.5, axis=1)
+            output_df['q975_prediction'] = np.percentile(predictions, 97.5, axis=1)
+
+            output_df.to_csv(predictions_path, index=False)
+            time.sleep(2)
+            progress_bar.progress(100)
+
+            status_text.text("Predictions complete!")
             st.success("✅ Predictions generated successfully!")
 
             with st.expander("📋 Prediction Output"):
-                st.code(result.stdout)
+                st.code(f"Predictions: {len(output_df)}\nDistricts: {output_df['district'].nunique()}\nSaved to: {predictions_path}")
 
-        except subprocess.CalledProcessError as e:
-            st.error("❌ Prediction failed!")
-            st.code(e.stderr)
+        except Exception as e:
+            st.error(f"❌ Prediction failed: {e}")
 
 
 def show_predictions():
