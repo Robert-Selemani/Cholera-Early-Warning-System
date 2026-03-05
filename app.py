@@ -33,6 +33,25 @@ st.set_page_config(
     }
 )
 
+# Open Graph / Social preview meta tags
+st.markdown("""
+    <meta property="og:type"        content="website" />
+    <meta property="og:site_name"   content="Cholera Early Warning System" />
+    <meta property="og:title"       content="Cholera Early Warning System – Zimbabwe & Southern Africa" />
+    <meta property="og:description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Powered by the CHAP framework — combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
+    <meta property="og:image"       content="https://raw.githubusercontent.com/Robert-Selemani/Cholera-Early-Warning-System/main/docs/images/system-approach.jpeg" />
+    <meta property="og:image:alt"   content="Cholera Early Warning System – system approach diagram" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="Cholera Early Warning System – Zimbabwe & Southern Africa" />
+    <meta name="twitter:description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Powered by the CHAP framework — combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
+    <meta name="twitter:image"       content="https://raw.githubusercontent.com/Robert-Selemani/Cholera-Early-Warning-System/main/docs/images/system-approach.jpeg" />
+
+    <meta name="description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Powered by the CHAP framework — combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
+""", unsafe_allow_html=True)
+
 # Custom CSS for CSIDNET-inspired styling
 st.markdown("""
 <style>
