@@ -204,10 +204,10 @@ hr { border-color: var(--border-color) !important; }
     margin-bottom: 1rem;
 }
 
-/* ── Buttons ──────────────────────────────────────────────────────── */
+/* ── App buttons (sidebar toggle, dark-mode button, etc.) ─────────── */
 .stButton>button {
     background-color: #020381;
-    color: white;
+    color: #FFFFFF !important;
     border-radius: 5px;
     border: 1px solid rgba(0,0,0,0.1);
     font-weight: 500;
@@ -217,7 +217,74 @@ hr { border-color: var(--border-color) !important; }
     background-color: #4C7C83;
     border-color: #4C7C83;
     box-shadow: 0 4px 8px rgba(76,124,131,0.3);
+    color: #FFFFFF !important;
 }
+/* Ensure button text/icons inside are always white */
+.stButton>button * { color: #FFFFFF !important; }
+
+/* ── Streamlit toolbar (Deploy + menu icons, top-right) ───────────── */
+[data-testid="stToolbar"],
+[data-testid="stHeader"] {
+    background-color: var(--bg-main) !important;
+}
+[data-testid="stToolbar"] button,
+[data-testid="stHeader"] button,
+[data-testid="stToolbar"] svg,
+[data-testid="stHeader"] svg,
+[data-testid="baseButton-header"],
+[data-testid="baseButton-header"] * {
+    color: var(--text-primary) !important;
+    fill:  var(--text-primary) !important;
+}
+
+/* ── Main menu / navigation button (☰) ───────────────────────────── */
+[data-testid="stSidebarNavItems"] a,
+[data-testid="stSidebarNavItems"] span,
+[data-testid="stSidebarCollapsedControl"] button,
+[data-testid="stSidebarCollapsedControl"] svg {
+    color: var(--text-primary) !important;
+    fill:  var(--text-primary) !important;
+}
+
+/* ── Radio buttons (navigation menu) ─────────────────────────────── */
+[data-testid="stRadio"] label,
+[data-testid="stRadio"] span,
+[data-testid="stRadio"] p {
+    color: var(--text-primary) !important;
+}
+
+/* ── Selectbox / multiselect dropdowns ────────────────────────────── */
+[data-testid="stSelectbox"] > div,
+[data-testid="stMultiSelect"] > div,
+[data-baseweb="select"] * {
+    background-color: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ── Checkbox & toggle labels ─────────────────────────────────────── */
+[data-testid="stCheckbox"] label,
+[data-testid="stCheckbox"] span {
+    color: var(--text-primary) !important;
+}
+
+/* ── Slider labels & values ───────────────────────────────────────── */
+[data-testid="stSlider"] label,
+[data-testid="stSlider"] span,
+[data-testid="stSlider"] p {
+    color: var(--text-primary) !important;
+}
+
+/* ── Code blocks ──────────────────────────────────────────────────── */
+[data-testid="stCode"] pre,
+[data-testid="stCode"] code {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color);
+}
+
+/* ── Caption / small text ─────────────────────────────────────────── */
+[data-testid="stCaptionContainer"] p,
+.stCaption { color: var(--text-muted) !important; }
 """
 
 # Build a single <style> block with the correct :root vars + shared rules
