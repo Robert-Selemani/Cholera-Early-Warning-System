@@ -8,13 +8,13 @@
   <title>Cholera Early Warning System – Zimbabwe &amp; Southern Africa</title>
   <meta name="description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
 
-  <!-- Open Graph -->
+  <!-- Open Graph (LinkedIn, Facebook) -->
   <meta property="og:type"         content="website" />
   <meta property="og:url"          content="https://robert-selemani.github.io/Cholera-Early-Warning-System/" />
   <meta property="og:site_name"    content="Cholera Early Warning System" />
   <meta property="og:title"        content="Cholera Early Warning System – Zimbabwe &amp; Southern Africa" />
   <meta property="og:description"  content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
-  <meta property="og:image"        content="https://raw.githubusercontent.com/Robert-Selemani/Cholera-Early-Warning-System/master/docs/images/system-approach.jpeg" />
+  <meta property="og:image"        content="https://robert-selemani.github.io/Cholera-Early-Warning-System/images/system-approach.jpeg" />
   <meta property="og:image:alt"    content="Cholera Early Warning System – system approach overview" />
   <meta property="og:image:width"  content="1200" />
   <meta property="og:image:height" content="630" />
@@ -23,21 +23,74 @@
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content="Cholera Early Warning System – Zimbabwe &amp; Southern Africa" />
   <meta name="twitter:description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
-  <meta name="twitter:image"       content="https://raw.githubusercontent.com/Robert-Selemani/Cholera-Early-Warning-System/master/docs/images/system-approach.jpeg" />
+  <meta name="twitter:image"       content="https://robert-selemani.github.io/Cholera-Early-Warning-System/images/system-approach.jpeg" />
 
-  <!-- Canonical is this page (so crawlers read OG tags here, not follow to Streamlit) -->
   <link rel="canonical" href="https://robert-selemani.github.io/Cholera-Early-Warning-System/" />
 
-  <!-- Redirect users to the live app after a short delay (crawlers stop at OG tags above) -->
-  <meta http-equiv="refresh" content="3; url=https://cews-zw.streamlit.app/" />
-
   <style>
-    body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #033E45; color: #fff; }
-    a { color: #46CBDE; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #033E45;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      max-width: 600px;
+      width: 100%;
+      overflow: hidden;
+      text-align: center;
+    }
+    .card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .card-body { padding: 2rem; }
+    .card-body h1 { font-size: 1.5rem; margin-bottom: 0.75rem; color: #46CBDE; }
+    .card-body p  { font-size: 0.95rem; line-height: 1.6; color: #DAEEF1; margin-bottom: 1.5rem; }
+    .btn {
+      display: inline-block;
+      background: #46CBDE;
+      color: #033E45;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #2fb3c7; }
+    .credit { margin-top: 1.25rem; font-size: 0.8rem; color: #A0C4CA; }
+    .credit a { color: #46CBDE; text-decoration: none; }
   </style>
 </head>
 <body>
-  <p>Redirecting to the app… <a href="https://cews-zw.streamlit.app/">Click here if not redirected.</a></p>
-  <script>window.location.replace("https://cews-zw.streamlit.app/");</script>
+  <div class="card">
+    <img src="images/system-approach.jpeg" alt="Cholera Early Warning System – system approach" />
+    <div class="card-body">
+      <h1>🏥 Cholera Early Warning System</h1>
+      <p>
+        A climate-informed forecasting and decision-support tool for Zimbabwe
+        and Southern Africa — combining epidemiological surveillance, climate
+        indicators, and AI-driven risk models to enable early public health action.
+      </p>
+      <a class="btn" href="https://cews-zw.streamlit.app/" target="_blank" rel="noopener">
+        Open the App
+      </a>
+      <p class="credit">
+        Developed by <a href="https://www.linkedin.com/in/robert-selemani/" target="_blank" rel="noopener">Robert Selemani</a>
+        &nbsp;·&nbsp; Powered by <a href="https://dhis2-chap.github.io/chap-core/" target="_blank" rel="noopener">CHAP</a>
+      </p>
+    </div>
+  </div>
 </body>
 </html>
