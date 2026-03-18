@@ -271,3 +271,11 @@ with col2:
 with col3:
     st.markdown("**Version 1.0.0**")
     st.caption("Last Updated: 2026-01")
+
+st.markdown(
+    "<div style='text-align:center; margin-top:0.5rem; color:#6c757d; font-size:0.85rem;'>"
+    "Developed by <a href='https://www.linkedin.com/in/robert-selemani/' target='_blank' "
+    "style='color:#0A66C2; text-decoration:none; font-weight:600;'>Robert Selemani</a>"
+    "</div>",
+    unsafe_allow_html=True
+)
