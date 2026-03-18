@@ -73,107 +73,183 @@ components.html(f"""
 </html>
 """, height=0)
 
-# Custom CSS for CSIDNET-inspired styling
-st.markdown("""
+# ---------------------------------------------------------------------------
+# Dark mode — default: follow OS/browser (prefers-color-scheme)
+#             button:  cycle  system → dark → light → system
+# ---------------------------------------------------------------------------
+_dm = st.session_state.get("dark_mode", "system")  # "system" | "dark" | "light"
+
+# CSS variables for each mode
+_DARK_VARS = """
+    --bg-main:      #0E1117;
+    --bg-card:      #1A1D27;
+    --bg-sidebar:   #161923;
+    --text-primary: #FAFAFA;
+    --text-muted:   #A0A8B8;
+    --border-color: #2E3347;
+    --header-bg1:   #022B30;
+    --header-bg2:   #2E5D65;
+    --section-col:  #46CBDE;
+    --card-bg:      #1A1D27;
+    --input-bg:     #1E2130;
+"""
+_LIGHT_VARS = """
+    --bg-main:      #FFFFFF;
+    --bg-card:      #FFFFFF;
+    --bg-sidebar:   #D0DADC;
+    --text-primary: #0E1117;
+    --text-muted:   #6c757d;
+    --border-color: #E0E0E0;
+    --header-bg1:   #033E45;
+    --header-bg2:   #4C7C83;
+    --section-col:  #033E45;
+    --card-bg:      #FFFFFF;
+    --input-bg:     #F4F4F4;
+"""
+
+_BASE_CSS = """
 <style>
-    /* CSIDNET Color Palette */
-    :root {
-        --teal-button: #4C7C83;
-        --teal-card: #033E45;
-        --midnight: #020381;
-        --lime-card: #D3F781;
-        --aqua-card: #46CBDE;
-        --salmon-card: #FC8170;
-        --teal-light: #D0DADC;
-        --lime-light: #EFF4E3;
-        --aqua-light: #DAEEF1;
-        --salmon-light: #F6E1DE;
-        --off-white: #F4F4F4;
-    }
+/* ── Scoped CSS variables ─────────────────────────────────────────── */
+:root { %(root_vars)s }
 
-    /* Main header styling */
-    .main-header {
-        background: linear-gradient(135deg, var(--teal-card) 0%, var(--teal-button) 100%);
-        padding: 2rem;
-        border-radius: 10px;
-        color: white;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
+/* ── App shell ────────────────────────────────────────────────────── */
+.stApp {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
 
-    .main-header h1 {
-        color: white;
-        margin: 0;
-        font-size: 2.5rem;
-    }
+/* ── Sidebar ──────────────────────────────────────────────────────── */
+[data-testid="stSidebar"] {
+    background-color: var(--bg-sidebar) !important;
+    transition: background-color 0.3s ease;
+}
+[data-testid="stSidebar"] * { color: var(--text-primary) !important; }
 
-    .main-header p {
-        color: var(--aqua-light);
-        margin: 0.5rem 0 0 0;
-        font-size: 1.1rem;
-    }
+/* ── Main content text ────────────────────────────────────────────── */
+.stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, label, span {
+    color: var(--text-primary) !important;
+}
 
-    /* Card styling */
-    .metric-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        border-left: 5px solid var(--aqua-card);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin: 1rem 0;
-    }
+/* ── Inputs & selects ─────────────────────────────────────────────── */
+input, textarea, select,
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+.stSelectbox select {
+    background-color: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
 
-    .metric-card.warning {
-        border-left-color: var(--salmon-card);
-    }
+/* ── Metric blocks ────────────────────────────────────────────────── */
+[data-testid="metric-container"] {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
 
-    .metric-card.success {
-        border-left-color: var(--lime-card);
-    }
+/* ── Dataframes / tables ──────────────────────────────────────────── */
+[data-testid="stDataFrame"], .dataframe {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px;
+    overflow: hidden;
+}
 
-    /* Button styling */
-    .stButton>button {
-        background-color: var(--midnight);
-        color: white;
-        border-radius: 5px;
-        border: 1px solid rgba(0,0,0,0.1);
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
+/* ── Expanders ────────────────────────────────────────────────────── */
+[data-testid="stExpander"] {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+}
 
-    .stButton>button:hover {
-        background-color: var(--teal-button);
-        border-color: var(--teal-button);
-        box-shadow: 0 4px 8px rgba(76,124,131,0.3);
-    }
+/* ── Alert / info boxes ───────────────────────────────────────────── */
+.stAlert {
+    border-radius: 8px;
+    border-left: 5px solid var(--section-col);
+}
 
-    /* Sidebar styling */
-    .css-1d391kg {
-        background-color: var(--teal-light);
-    }
+/* ── Horizontal rules ─────────────────────────────────────────────── */
+hr { border-color: var(--border-color) !important; }
 
-    /* Info boxes */
-    .stAlert {
-        border-radius: 8px;
-        border-left: 5px solid var(--aqua-card);
-    }
+/* ── Custom cards ─────────────────────────────────────────────────── */
+.metric-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 5px solid #46CBDE;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin: 1rem 0;
+}
+.metric-card.warning { border-left-color: #FC8170; }
+.metric-card.success { border-left-color: #D3F781; }
 
-    /* Tables */
-    .dataframe {
-        border-radius: 8px;
-        overflow: hidden;
-    }
+/* ── Main header ──────────────────────────────────────────────────── */
+.main-header {
+    background: linear-gradient(135deg, var(--header-bg1) 0%%, var(--header-bg2) 100%%);
+    padding: 2rem;
+    border-radius: 10px;
+    color: white;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.main-header h1 { color: white; margin: 0; font-size: 2.5rem; }
+.main-header p  { color: #DAEEF1; margin: 0.5rem 0 0 0; font-size: 1.1rem; }
 
-    /* Section headers */
-    .section-header {
-        color: var(--teal-card);
-        border-bottom: 3px solid var(--aqua-card);
-        padding-bottom: 0.5rem;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-    }
+/* ── Section headers ──────────────────────────────────────────────── */
+.section-header {
+    color: var(--section-col);
+    border-bottom: 3px solid #46CBDE;
+    padding-bottom: 0.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.stButton>button {
+    background-color: #020381;
+    color: white;
+    border-radius: 5px;
+    border: 1px solid rgba(0,0,0,0.1);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+.stButton>button:hover {
+    background-color: #4C7C83;
+    border-color: #4C7C83;
+    box-shadow: 0 4px 8px rgba(76,124,131,0.3);
+}
 </style>
-""", unsafe_allow_html=True)
+"""
+
+# When mode is "system" we inject a @media rule instead of hardcoded vars
+_SYSTEM_CSS = """
+<style>
+%(base)s
+@media (prefers-color-scheme: dark) {
+  :root {
+    %(dark_vars)s
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    %(light_vars)s
+  }
+}
+</style>
+""" % {
+    "base": _BASE_CSS % {"root_vars": ""},
+    "dark_vars": _DARK_VARS,
+    "light_vars": _LIGHT_VARS,
+}
+
+if _dm == "system":
+    st.markdown(_SYSTEM_CSS, unsafe_allow_html=True)
+elif _dm == "dark":
+    st.markdown(_BASE_CSS % {"root_vars": _DARK_VARS}, unsafe_allow_html=True)
+else:
+    st.markdown(_BASE_CSS % {"root_vars": _LIGHT_VARS}, unsafe_allow_html=True)
 
 # Main header
 st.markdown("""
@@ -185,6 +261,17 @@ st.markdown("""
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
+st.sidebar.markdown("---")
+
+# Dark mode toggle button
+_icons   = {"system": "🖥️ System", "dark": "🌙 Dark", "light": "☀️ Light"}
+_next    = {"system": "dark", "dark": "light", "light": "system"}
+_tooltip = {"system": "Following system theme — click for Dark", "dark": "Dark mode — click for Light", "light": "Light mode — click for System"}
+
+if st.sidebar.button(f"{_icons[_dm]}", help=_tooltip[_dm], use_container_width=True):
+    st.session_state["dark_mode"] = _next[_dm]
+    st.rerun()
+
 st.sidebar.markdown("---")
 
 # Page selection — honour programmatic navigation via session state
@@ -273,7 +360,7 @@ with col3:
     st.caption("Last Updated: 2026-01")
 
 st.markdown(
-    "<div style='text-align:center; margin-top:0.5rem; color:#6c757d; font-size:0.85rem;'>"
+    "<div style='text-align:center; margin-top:0.5rem; color:var(--text-muted,#6c757d); font-size:0.85rem;'>"
     "Developed by <a href='https://www.linkedin.com/in/robert-selemani/' target='_blank' "
     "style='color:#0A66C2; text-decoration:none; font-weight:600;'>Robert Selemani</a>"
     "</div>",
