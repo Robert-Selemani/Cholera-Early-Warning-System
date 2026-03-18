@@ -74,26 +74,9 @@ components.html(f"""
 """, height=0)
 
 # ---------------------------------------------------------------------------
-# Dark mode — default: follow OS/browser (prefers-color-scheme)
-#             button:  cycle  system → dark → light → system
+# Theme — light mode only
 # ---------------------------------------------------------------------------
-_dm = st.session_state.get("dark_mode", "system")  # "system" | "dark" | "light"
-
-# CSS variables for each mode
-_DARK_VARS = """
-    --bg-main:      #0E1117;
-    --bg-card:      #1A1D27;
-    --bg-sidebar:   #161923;
-    --text-primary: #FAFAFA;
-    --text-muted:   #A0A8B8;
-    --border-color: #2E3347;
-    --header-bg1:   #022B30;
-    --header-bg2:   #2E5D65;
-    --section-col:  #46CBDE;
-    --card-bg:      #1A1D27;
-    --input-bg:     #1E2130;
-"""
-_LIGHT_VARS = """
+_THEME_VARS = """
     --bg-main:      #FFFFFF;
     --bg-card:      #FFFFFF;
     --bg-sidebar:   #D0DADC;
@@ -287,19 +270,7 @@ hr { border-color: var(--border-color) !important; }
 .stCaption { color: var(--text-muted) !important; }
 """
 
-# Build a single <style> block with the correct :root vars + shared rules
-if _dm == "system":
-    _css = f"""<style>
-@media (prefers-color-scheme: dark)  {{ :root {{ {_DARK_VARS}  }} }}
-@media (prefers-color-scheme: light) {{ :root {{ {_LIGHT_VARS} }} }}
-{_BASE_RULES}
-</style>"""
-elif _dm == "dark":
-    _css = f"<style>:root {{ {_DARK_VARS} }}\n{_BASE_RULES}</style>"
-else:
-    _css = f"<style>:root {{ {_LIGHT_VARS} }}\n{_BASE_RULES}</style>"
-
-st.markdown(_css, unsafe_allow_html=True)
+st.markdown(f"<style>:root {{ {_THEME_VARS} }}\n{_BASE_RULES}</style>", unsafe_allow_html=True)
 
 # Main header
 st.markdown("""
@@ -311,17 +282,6 @@ st.markdown("""
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-st.sidebar.markdown("---")
-
-# Dark mode toggle button
-_icons   = {"system": "🖥️ System", "dark": "🌙 Dark", "light": "☀️ Light"}
-_next    = {"system": "dark", "dark": "light", "light": "system"}
-_tooltip = {"system": "Following system theme — click for Dark", "dark": "Dark mode — click for Light", "light": "Light mode — click for System"}
-
-if st.sidebar.button(f"{_icons[_dm]}", help=_tooltip[_dm], use_container_width=True):
-    st.session_state["dark_mode"] = _next[_dm]
-    st.rerun()
-
 st.sidebar.markdown("---")
 
 # Page selection — honour programmatic navigation via session state
