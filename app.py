@@ -7,13 +7,23 @@ using the CHAP (Climate and Health Analysis Platform) framework.
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import sys
 from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-# Page configuration
+_OG_IMAGE = "https://raw.githubusercontent.com/Robert-Selemani/Cholera-Early-Warning-System/main/docs/images/system-approach.jpeg"
+_OG_TITLE = "Cholera Early Warning System – Zimbabwe & Southern Africa"
+_OG_DESC  = (
+    "Climate-informed cholera forecasting and early warning tool for Zimbabwe "
+    "and Southern Africa. Powered by the CHAP framework — combining "
+    "epidemiological data, climate indicators, and AI-driven risk models to "
+    "support public health decision-making."
+)
+
+# Page configuration – set_page_config writes og:title / og:description to <head>
 st.set_page_config(
     page_title="Cholera Early Warning System",
     page_icon="🏥",
@@ -33,24 +43,35 @@ st.set_page_config(
     }
 )
 
-# Open Graph / Social preview meta tags
-st.markdown("""
-    <meta property="og:type"        content="website" />
-    <meta property="og:site_name"   content="Cholera Early Warning System" />
-    <meta property="og:title"       content="Cholera Early Warning System – Zimbabwe & Southern Africa" />
-    <meta property="og:description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Powered by the CHAP framework — combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
-    <meta property="og:image"       content="https://raw.githubusercontent.com/Robert-Selemani/Cholera-Early-Warning-System/main/docs/images/system-approach.jpeg" />
-    <meta property="og:image:alt"   content="Cholera Early Warning System – system approach diagram" />
-    <meta property="og:image:width" content="1200" />
+# Inject additional OG tags (image, type, twitter) into <head> via a hidden iframe
+components.html(f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta property="og:type"         content="website" />
+    <meta property="og:site_name"    content="Cholera Early Warning System" />
+    <meta property="og:title"        content="{_OG_TITLE}" />
+    <meta property="og:description"  content="{_OG_DESC}" />
+    <meta property="og:image"        content="{_OG_IMAGE}" />
+    <meta property="og:image:alt"    content="Cholera Early Warning System – system approach diagram" />
+    <meta property="og:image:width"  content="1200" />
     <meta property="og:image:height" content="630" />
-
     <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:title"       content="Cholera Early Warning System – Zimbabwe & Southern Africa" />
-    <meta name="twitter:description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Powered by the CHAP framework — combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
-    <meta name="twitter:image"       content="https://raw.githubusercontent.com/Robert-Selemani/Cholera-Early-Warning-System/main/docs/images/system-approach.jpeg" />
-
-    <meta name="description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Powered by the CHAP framework — combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
-""", unsafe_allow_html=True)
+    <meta name="twitter:title"       content="{_OG_TITLE}" />
+    <meta name="twitter:description" content="{_OG_DESC}" />
+    <meta name="twitter:image"       content="{_OG_IMAGE}" />
+    <meta name="description"         content="{_OG_DESC}" />
+    <script>
+        // Hoist meta tags into the parent page's <head>
+        const metas = document.head.querySelectorAll('meta');
+        metas.forEach(m => {{
+            try {{ window.parent.document.head.appendChild(m.cloneNode(true)); }} catch(e) {{}}
+        }});
+    </script>
+</head>
+<body></body>
+</html>
+""", height=0)
 
 # Custom CSS for CSIDNET-inspired styling
 st.markdown("""
@@ -166,19 +187,24 @@ st.markdown("""
 st.sidebar.title("Navigation")
 st.sidebar.markdown("---")
 
-# Page selection
+# Page selection — honour programmatic navigation via session state
+_pages = [
+    "🏠 Dashboard",
+    "📊 Data Management",
+    "🧮 Model Training",
+    "🔮 Predictions",
+    "📈 Visualizations",
+    "📋 Evaluation",
+    "⚙️ Settings"
+]
+_default_index = 0
+if "page" in st.session_state and st.session_state["page"] in _pages:
+    _default_index = _pages.index(st.session_state.pop("page"))
+
 page = st.sidebar.radio(
     "Select Module",
-    [
-        "🏠 Dashboard",
-        "📊 Data Management",
-        "🧮 Model Training",
-        "🔮 Predictions",
-        "📈 Visualizations",
-        "📋 Evaluation",
-        "⚙️ Settings"
-    ],
-    index=0
+    _pages,
+    index=_default_index
 )
 
 # Sidebar info

@@ -26,7 +26,8 @@ def show():
     if not train_data_path.exists():
         st.warning("⚠️ No training data found. Please harmonize data first.")
         if st.button("Go to Data Management"):
-            st.switch_page("pages/data_management.py")
+            st.session_state["page"] = "📊 Data Management"
+            st.rerun()
         return
 
     # Model configuration
@@ -170,7 +171,15 @@ def train_model(train_data_path, model_name, config):
                     df[lag_col] = df.groupby('district')[feature].shift(lag)
                     available_features.append(lag_col)
 
-            df = df.dropna()
+            df = df.dropna(subset=available_features + ['cholera_cases'])
+            if len(df) == 0:
+                st.error(
+                    "❌ No usable rows remain after creating lag features. "
+                    "This usually means your dataset has too few time points per district "
+                    f"relative to the largest lag ({max(lag_periods)} months). "
+                    "Try unchecking longer lag periods, or add more historical data."
+                )
+                return
             X = df[available_features].values
             y = df['cholera_cases'].values
             time.sleep(2)

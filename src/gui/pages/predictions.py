@@ -23,7 +23,8 @@ def show():
     if not model_files:
         st.warning("⚠️ No trained models found. Please train a model first.")
         if st.button("Go to Model Training"):
-            st.switch_page("pages/model_training.py")
+            st.session_state["page"] = "🧮 Model Training"
+            st.rerun()
         return
 
     # Model selection
