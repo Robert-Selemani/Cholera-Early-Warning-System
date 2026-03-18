@@ -25,9 +25,11 @@
   <meta name="twitter:description" content="Climate-informed cholera forecasting and early warning tool for Zimbabwe and Southern Africa. Combining epidemiological data, climate indicators, and AI-driven risk models to support public health decision-making." />
   <meta name="twitter:image"       content="https://raw.githubusercontent.com/Robert-Selemani/Cholera-Early-Warning-System/master/docs/images/system-approach.jpeg" />
 
-  <!-- Redirect to the live Streamlit app -->
-  <meta http-equiv="refresh" content="0; url=https://cews-zw.streamlit.app/" />
-  <link rel="canonical" href="https://cews-zw.streamlit.app/" />
+  <!-- Canonical is this page (so crawlers read OG tags here, not follow to Streamlit) -->
+  <link rel="canonical" href="https://robert-selemani.github.io/Cholera-Early-Warning-System/" />
+
+  <!-- Redirect users to the live app after a short delay (crawlers stop at OG tags above) -->
+  <meta http-equiv="refresh" content="3; url=https://cews-zw.streamlit.app/" />
 
   <style>
     body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #033E45; color: #fff; }
