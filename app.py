@@ -107,11 +107,9 @@ _LIGHT_VARS = """
     --input-bg:     #F4F4F4;
 """
 
-_BASE_CSS = """
-<style>
-/* ── Scoped CSS variables ─────────────────────────────────────────── */
-:root { %(root_vars)s }
-
+# Raw CSS rules only — no <style> tags here so they can be safely embedded
+# anywhere without breaking the wrapping <style> block.
+_BASE_RULES = """
 /* ── App shell ────────────────────────────────────────────────────── */
 .stApp {
     background-color: var(--bg-main) !important;
@@ -187,7 +185,7 @@ hr { border-color: var(--border-color) !important; }
 
 /* ── Main header ──────────────────────────────────────────────────── */
 .main-header {
-    background: linear-gradient(135deg, var(--header-bg1) 0%%, var(--header-bg2) 100%%);
+    background: linear-gradient(135deg, var(--header-bg1) 0%, var(--header-bg2) 100%);
     padding: 2rem;
     border-radius: 10px;
     color: white;
@@ -220,36 +218,21 @@ hr { border-color: var(--border-color) !important; }
     border-color: #4C7C83;
     box-shadow: 0 4px 8px rgba(76,124,131,0.3);
 }
-</style>
 """
 
-# When mode is "system" we inject a @media rule instead of hardcoded vars
-_SYSTEM_CSS = """
-<style>
-%(base)s
-@media (prefers-color-scheme: dark) {
-  :root {
-    %(dark_vars)s
-  }
-}
-@media (prefers-color-scheme: light) {
-  :root {
-    %(light_vars)s
-  }
-}
-</style>
-""" % {
-    "base": _BASE_CSS % {"root_vars": ""},
-    "dark_vars": _DARK_VARS,
-    "light_vars": _LIGHT_VARS,
-}
-
+# Build a single <style> block with the correct :root vars + shared rules
 if _dm == "system":
-    st.markdown(_SYSTEM_CSS, unsafe_allow_html=True)
+    _css = f"""<style>
+@media (prefers-color-scheme: dark)  {{ :root {{ {_DARK_VARS}  }} }}
+@media (prefers-color-scheme: light) {{ :root {{ {_LIGHT_VARS} }} }}
+{_BASE_RULES}
+</style>"""
 elif _dm == "dark":
-    st.markdown(_BASE_CSS % {"root_vars": _DARK_VARS}, unsafe_allow_html=True)
+    _css = f"<style>:root {{ {_DARK_VARS} }}\n{_BASE_RULES}</style>"
 else:
-    st.markdown(_BASE_CSS % {"root_vars": _LIGHT_VARS}, unsafe_allow_html=True)
+    _css = f"<style>:root {{ {_LIGHT_VARS} }}\n{_BASE_RULES}</style>"
+
+st.markdown(_css, unsafe_allow_html=True)
 
 # Main header
 st.markdown("""
